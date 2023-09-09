@@ -8,7 +8,7 @@ const setToken = (newToken) => {
 }
 
 const getAll = async () => {
-  const response = await axios.get(baseUrl).catch((error) => error);
+  const response = await axios.get(baseUrl)
   return response.data;
 };
 
@@ -19,7 +19,7 @@ const create = async (newBlog) => {
     }
   }
 
-  const response = await axios.post(baseUrl, newBlog, config).catch((error) => error)
+  const response = await axios.post(baseUrl, newBlog, config)
   return response.data
 }
 
