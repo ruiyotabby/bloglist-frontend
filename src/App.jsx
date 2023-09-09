@@ -2,25 +2,22 @@ import { useState, useEffect } from 'react';
 import noteService from './services/blog';
 import Blog from './components/Blog';
 import loginService from './services/login';
+import LoginForm from './components/Login';
 
 function App() {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
 
   useEffect(() => {
     noteService.getAll().then((response) => setBlogs(response));
   }, []);
 
-  const handleLogin = async (event) => {
+  const handleLogin = async (username, password) => {
     event.preventDefault()
 
     try {
       const user = await loginService.login({ username, password })
       setUser(user)
-      setPassword('')
-      setUsername('')
     } catch(exception) {
       console.log(exception);
     }
@@ -28,29 +25,20 @@ function App() {
 
   return (
     <div>
-      <h2>Blogs</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          username
-          <input
-            type="text"
-            value={username}
-            name='username'
-            onChange={({target}) => setUsername(target.value)}
-          />
-        </div>
-        <div>
-        password
-          <input
-            type='text'
-            value={password}
-            name='password'
-            onChange={({target}) => setPassword(target.value)}
-          />
-        </div>
-        <button type='submit'>Login</button>
-      </form>
-      {blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}
+      {!user &&
+      <div>
+        <h2>Log in to application</h2>
+        <LoginForm handleSubmit={handleLogin} />
+      </div>
+      }
+
+      {user &&
+      <div>
+        <h2>Blogs</h2>
+        {user.name} logged in
+        {blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}
+      </div>
+      }
     </div>
   );
 }
