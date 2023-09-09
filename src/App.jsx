@@ -12,15 +12,26 @@ function App() {
     noteService.getAll().then((response) => setBlogs(response));
   }, []);
 
-  const handleLogin = async (username, password) => {
-    event.preventDefault()
+  useEffect(() => {
+    const loggedUser = window.localStorage.getItem('loggedUser');
+    if (loggedUser) {
+      setUser(JSON.parse(loggedUser))
+    }
+  }, [])
 
+  const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({ username, password })
       setUser(user)
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
     } catch(exception) {
       console.log(exception);
     }
+  }
+
+  const handleLogout = () => {
+    window.localStorage.removeItem('loggedUser')
+    window.location.reload()
   }
 
   return (
@@ -36,6 +47,7 @@ function App() {
       <div>
         <h2>Blogs</h2>
         {user.name} logged in
+        <button onClick={handleLogout}>log out</button>
         {blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}
       </div>
       }
