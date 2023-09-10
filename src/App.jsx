@@ -34,6 +34,7 @@ function App() {
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       setSuccessMessage(`${user.name} signed in successfully`)
       setTimeout(() => setSuccessMessage(null), 3000)
+      setTimeout(() => window.localStorage.removeItem('loggedUser'), 60000 * 6000)
     } catch(exception) {
       setErrorMessage(exception.response.data.error)
       setTimeout(() => setErrorMessage(null), 3000)
