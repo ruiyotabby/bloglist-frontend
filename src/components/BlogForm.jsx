@@ -9,7 +9,7 @@ const BlogForm = ({handleSubmit}) => {
   const handleCreation = async (event) => {
     event.preventDefault()
 
-    handleSubmit(title, author, url)
+    handleSubmit({ title, author, url })
     setTitle('')
     setAuthor('')
     setUrl('')

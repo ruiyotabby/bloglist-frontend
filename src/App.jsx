@@ -6,6 +6,7 @@ import BlogForm from './components/BlogForm';
 import blogService from './services/blog'
 import './index.css'
 import Notification from './components/Notification';
+import Togglable from './components/Togglable';
 
 function App() {
   const [blogs, setBlogs] = useState([]);
@@ -26,15 +27,13 @@ function App() {
     }
   }, [])
 
-  const handleLogin = async (username, password) => {
+  const handleLogin = async (credentials) => {
     try {
-      const user = await loginService.login({ username, password })
-      blogService.setToken(user.token)
-      setUser(user)
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      setSuccessMessage(`${user.name} signed in successfully`)
+      const loggedUser = await loginService.login(credentials)
+      blogService.setToken(loggedUser.token)
+      window.localStorage.setItem('loggedUser', JSON.stringify(loggedUser))
+      setSuccessMessage(`${loggedUser.name} signed in successfully`)
       setTimeout(() => setSuccessMessage(null), 3000)
-      setTimeout(() => window.localStorage.removeItem('loggedUser'), 60000 * 6000)
     } catch(exception) {
       setErrorMessage(exception.response.data.error)
       setTimeout(() => setErrorMessage(null), 3000)
@@ -43,16 +42,15 @@ function App() {
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser')
-    setTimeout(() => window.location.reload(), 3000)
+    setTimeout(() => window.location.reload(), 2000)
     setSuccessMessage(`signed out successfully`)
     setTimeout(() => setSuccessMessage(null), 3000)
   }
 
-  const handleCreation = async (title, author, url) => {
+  const handleCreation = async (newBlog) => {
     try {
-      const blog = { title, author, url}
-      const response = await blogService.create(blog)
-      setSuccessMessage(`a new blog '${blog.title}' by '${blog.author}' added`)
+      const response = await blogService.create(newBlog)
+      setSuccessMessage(`a new blog '${newBlog.title}' by '${newBlog.author}' added`)
       setTimeout(() => setSuccessMessage(null), 3000)
       setBlogs(blogs.concat(response))
     } catch (error) {
@@ -79,7 +77,9 @@ function App() {
           {user.name} logged in
           <button onClick={handleLogout}>log out</button>
           <h2>Create new</h2>
-          <BlogForm handleSubmit={handleCreation} />
+          <Togglable buttonLabel='Create note'>
+            <BlogForm handleSubmit={handleCreation} />
+          </Togglable>
           {blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}
         </>
       }
