@@ -64,6 +64,18 @@ function App() {
     }
   }
 
+  const handleLike = async (blog) => {
+    try {
+      await blogService.update(blog.id, blog)
+      setBlogs(await blogService.getAll())
+      setSuccessMessage(`blog '${blog.title} ${blog.author}' liked`)
+      setTimeout(() => setSuccessMessage(null), 3000)
+    } catch(exception) {
+      setErrorMessage(exception.response.data.error)
+      setTimeout(() => setErrorMessage(null), 3000)
+    }
+  }
+
   return (
     <>
       <Notification message={errorMessage} className='error' />
@@ -83,7 +95,7 @@ function App() {
           <Togglable buttonLabel='Create new blog' ref={blogFormRef}>
             <BlogForm handleSubmit={handleCreation} />
           </Togglable>
-          {blogs.map((blog) =><Blog key={blog.id} blog={blog} />
+          {blogs.map((blog) =><Blog key={blog.id} blog={blog} handleClick={handleLike} />
           )}
         </>
       }
