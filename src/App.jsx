@@ -78,6 +78,7 @@ function App() {
 
   return (
     <>
+    {/* {console.log(blogs.sort((a, b) => b.likes - a.likes))} */}
       <Notification message={errorMessage} className='error' />
       <Notification message={successMessage} className='success' />
       {!user &&
@@ -95,7 +96,7 @@ function App() {
           <Togglable buttonLabel='Create new blog' ref={blogFormRef}>
             <BlogForm handleSubmit={handleCreation} />
           </Togglable>
-          {blogs.map((blog) =><Blog key={blog.id} blog={blog} handleClick={handleLike} />
+          {blogs.sort((a, b) => b.likes - a.likes).map((blog) =><Blog key={blog.id} blog={blog} handleClick={handleLike} />
           )}
         </>
       }
