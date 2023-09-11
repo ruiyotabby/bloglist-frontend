@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import '../index.css'
 
-const Blog = ({ blog, handleClick }) => {
+const Blog = ({ blog, handleClick, user, handleDelete }) => {
   const [visible, setVisible] = useState(false)
   const toggleVisibility = () => setVisible(!visible)
   const showWhenVisible = { display: visible ? '' : 'none' }
@@ -18,6 +18,15 @@ const Blog = ({ blog, handleClick }) => {
     handleClick(updateBlog)
   }
 
+  const handleRemove = (event) => {
+    event.preventDefault()
+    const deletedBlog = {
+      ...blog,
+      user: blog.user.id
+    }
+    handleDelete(deletedBlog)
+  }
+
   return (
     <div className='blog'>
       <span>{blog.title} {blog.author} </span>
@@ -26,13 +35,15 @@ const Blog = ({ blog, handleClick }) => {
         <div>{blog.url}</div>
         <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
         <div>{blog.user.name}</div>
-        <button>remove</button>
+        {user && <button onClick={handleRemove}>remove</button>}
       </div>
     </div>
   );}
 
 
 Blog.propTypes = {
+  handleDelete: PropTypes.func,
+  user: PropTypes.bool,
   handleClick: PropTypes.func,
   blog: PropTypes.shape({
     title: PropTypes.string,

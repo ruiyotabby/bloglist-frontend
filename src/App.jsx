@@ -38,6 +38,10 @@ function App() {
       window.localStorage.setItem('loggedUser', JSON.stringify(loggedUser))
       setSuccessMessage(`${loggedUser.name} signed in successfully`)
       setTimeout(() => setSuccessMessage(null), 3000)
+      setTimeout(() => {
+        window.localStorage.removeItem('loggedUser')
+        window.location.reload
+      }, 1000 * 60 * 60)
     } catch(exception) {
       setErrorMessage(exception.response.data.error)
       setTimeout(() => setErrorMessage(null), 3000)
@@ -76,9 +80,25 @@ function App() {
     }
   }
 
+  const handleRemove = async (blog) => {
+    try {
+      if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        return null
+      }
+      await blogService.remove(blog.id)
+      setBlogs(await blogService.getAll())
+      setSuccessMessage(`blog '${blog.title} ${blog.author}' was deleted`)
+      setTimeout(() => setSuccessMessage(null), 3000)
+    } catch(exception) {
+      setErrorMessage(exception.response.data.error)
+      setTimeout(() => setErrorMessage(null), 3000)
+      console.log(exception);
+    }
+
+  }
+
   return (
     <>
-    {/* {console.log(blogs.sort((a, b) => b.likes - a.likes))} */}
       <Notification message={errorMessage} className='error' />
       <Notification message={successMessage} className='success' />
       {!user &&
@@ -96,8 +116,18 @@ function App() {
           <Togglable buttonLabel='Create new blog' ref={blogFormRef}>
             <BlogForm handleSubmit={handleCreation} />
           </Togglable>
-          {blogs.sort((a, b) => b.likes - a.likes).map((blog) =><Blog key={blog.id} blog={blog} handleClick={handleLike} />
-          )}
+          {blogs
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) =>
+              <Blog
+                key={blog.id}
+                blog={blog}
+                handleClick={handleLike}
+                user={user.username === blog.user.username}
+                handleDelete={handleRemove}
+              />
+            )
+          }
         </>
       }
     </>
