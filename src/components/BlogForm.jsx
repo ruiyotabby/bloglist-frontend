@@ -24,6 +24,7 @@ const BlogForm = ({handleSubmit}) => {
             type="text"
             value={title}
             name='title'
+            id='title'
             required
             onChange={({target}) => setTitle(target.value)}
           />
@@ -34,6 +35,7 @@ const BlogForm = ({handleSubmit}) => {
             type="text"
             value={author}
             name='author'
+            id='author'
             required
             onChange={({target}) => setAuthor(target.value)}
           />
@@ -44,6 +46,7 @@ const BlogForm = ({handleSubmit}) => {
             type='text'
             value={url}
             name='url'
+            id='url'
             required
             onChange={({target}) => setUrl(target.value)}
           />

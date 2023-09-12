@@ -18,6 +18,7 @@ describe('<Blog />', () => {
 
   test('renders only title and author by default', () => {
     const {container} = render(<Blog blog={blog} />)
+    screen.debug()
 
     const hiddenContent = container.querySelector('.hiddenContent')
     expect(hiddenContent).toHaveStyle('display: none')
