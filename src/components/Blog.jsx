@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import '../index.css';
+// import '../index.css';
 
 const Blog = ({ blog, handleClick, user, handleDelete }) => {
   const [visible, setVisible] = useState(false)
