@@ -1,20 +1,22 @@
+import React from 'react';
 import '@testing-library/jest-dom'
 import { render, screen } from "@testing-library/react";
+import userEvent from '@testing-library/user-event';
 import Blog from "./Blog";
 
 describe('<Blog />', () => {
-  test('renders only title and author by default', () => {
-    const blog = {
-      title: 'Some title',
-      author: 'Someone',
-      likes: 0,
-      url: 'www.localhost.com',
-      user: {
-        id: '123456789',
-        name: 'some name'
-      }
+  const blog = {
+    title: 'Some title',
+    author: 'Someone',
+    likes: 0,
+    url: 'www.localhost.com',
+    user: {
+      id: '123456789',
+      name: 'some name'
     }
+  }
 
+  test('renders only title and author by default', () => {
     const {container} = render(<Blog blog={blog} />)
 
     const hiddenContent = container.querySelector('.hiddenContent')
@@ -23,6 +25,17 @@ describe('<Blog />', () => {
     const visibleContent = screen.getByText('Some title Someone')
     expect(visibleContent).toBeDefined()
     expect(visibleContent).not.toHaveStyle('display: none')
+  })
+
+  test('renders the rest of the details on button press', async () => {
+    const {container} = render(<Blog blog={blog} />)
+    
+    const user = userEvent.setup()
+    const button = screen.getByText('show')
+    await user.click(button)
+
+    const hiddenContent = container.querySelector('.hiddenContent')
+    expect(hiddenContent).not.toHaveStyle('display: none')
   })
 
 })
