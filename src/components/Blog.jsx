@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import '../index.css'
+import '../index.css';
 
 const Blog = ({ blog, handleClick, user, handleDelete }) => {
   const [visible, setVisible] = useState(false)
@@ -31,7 +31,7 @@ const Blog = ({ blog, handleClick, user, handleDelete }) => {
     <div className='blog'>
       <span>{blog.title} {blog.author} </span>
       <button onClick={toggleVisibility}>{text}</button>
-      <div style={showWhenVisible}>
+      <div style={showWhenVisible} className='hiddenContent'>
         <div>{blog.url}</div>
         <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
         <div>{blog.user.name}</div>
