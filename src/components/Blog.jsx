@@ -33,7 +33,7 @@ const Blog = ({ blog, handleClick, user, handleDelete }) => {
       <button onClick={toggleVisibility}>{text}</button>
       <div style={showWhenVisible} className='hiddenContent'>
         <div>{blog.url}</div>
-        <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
+        <div id='likes'>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
         <div>{blog.user.name}</div>
         {user && <button onClick={handleRemove}>remove</button>}
       </div>
