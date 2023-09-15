@@ -38,4 +38,23 @@ describe('Blog app', () => {
       cy.contains('Incorrect username or password').should('have.css', 'color', 'rgb(255, 0, 0)')
     })
   })
+
+  describe('when logged in', function () {
+    beforeEach(function () {
+      cy.get('[name=username]').type('johny')
+      cy.get('[name=password]').type('john')
+      cy.get('[type=submit]').click()
+    })
+
+    it.only('A blog can be created', function () {
+      cy.contains('Blogs')
+      cy.contains('Create new blog').click()
+      cy.get('[name=title]').type('a title by cypress')
+      cy.get('[name=author]').type('an author by cypress')
+      cy.get('[name=url]').type('a url by cypress')
+      cy.contains('create').click()
+
+      cy.get('.success').contains("'a title by cypress' by 'an author by cypress' added")
+    })
+  })
 })
