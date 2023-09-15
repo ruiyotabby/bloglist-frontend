@@ -45,7 +45,6 @@ describe('Blog app', () => {
     })
 
     it('A blog can be created', function () {
-      cy.contains('Blogs')
       cy.contains('Create new blog').click()
       cy.get('[name=title]').type('a title by cypress')
       cy.get('[name=author]').type('an author by cypress')
@@ -53,18 +52,24 @@ describe('Blog app', () => {
       cy.contains('create').click()
 
       cy.get('.success').contains("'a title by cypress' by 'an author by cypress' added")
+      cy.contains('a title by cypress an author by cypress')
     })
 
-    it.only('A blog can be liked', function () {
-      cy.contains('Create new blog').click()
-      cy.get('[name=title]').type('a title by cypress')
-      cy.get('[name=author]').type('an author by cypress')
-      cy.get('[name=url]').type('a url by cypress')
-      cy.contains('create').click()
+    describe('when a blog is created', function () {
+      beforeEach(function () {
+        cy.createBlog({
+          title: 'a title by cypress',
+          author: 'an author by cypress',
+          url: 'a url by cypress'
+         })
+      })
 
-      cy.contains('show').click()
-      cy.contains('like').click()
-      cy.get('#likes').contains(1)
+      it('A blog can be liked', function () {
+        cy.contains('show').click()
+        cy.contains('like').click()
+
+        cy.get('#likes').contains(1)
+      })
     })
   })
 })
