@@ -1,13 +1,13 @@
 describe('Blog app', () => {
   beforeEach(function () {
-    cy.request('POST', 'http://localhost:3003/api/testing/reset')
+    cy.request('POST', `${Cypress.env('BACKEND')}/testing/reset`)
     const user = {
       name: 'john',
       username: 'johny',
       password: 'john'
     }
-    cy.request('POST',  'http://localhost:3003/api/users', user)
-    cy.visit('http://localhost:5173')
+    cy.request('POST',  `${Cypress.env('BACKEND')}/users`, user)
+    cy.visit('')
   })
 
   it('Login form is shown', function () {
@@ -41,9 +41,7 @@ describe('Blog app', () => {
 
   describe('when logged in', function () {
     beforeEach(function () {
-      cy.get('[name=username]').type('johny')
-      cy.get('[name=password]').type('john')
-      cy.get('[type=submit]').click()
+      cy.login({ username: 'johny', password: 'john' })
     })
 
     it('A blog can be created', function () {
