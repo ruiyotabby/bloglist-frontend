@@ -1,8 +1,9 @@
-# React + Vite
+# Bloglist Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project tests react frontend with Jest for unit and integration test and Cypress for end to end testing with the backend
 
-Currently, two official plugins are available:
+# Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+First clone the repo then
+> npm install
+and you are ready to go
