@@ -5,5 +5,5 @@ This project tests react frontend with Jest for unit and integration test and Cy
 # Installation
 
 First clone the repo then
-> npm install
+```npm install```
 and you are ready to go
