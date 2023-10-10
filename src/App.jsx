@@ -9,7 +9,7 @@ import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearNotification, createNotification } from './reducers/notificationReducer';
-import { initializeBlogs } from './reducers/blogReducer';
+import { createBlog, initializeBlogs } from './reducers/blogReducer';
 
 function App() {
   const [user, setUser] = useState(null)
@@ -28,6 +28,10 @@ function App() {
       const user = JSON.parse(loggedUser)
       setUser(user)
       blogService.setToken(user.token)
+      setTimeout(() => {
+        window.localStorage.removeItem('loggedUser')
+        window.location.reload()
+      }, 60000 * 60)
     }
   }, [])
 
@@ -41,8 +45,8 @@ function App() {
       setTimeout(() => dispatch(clearNotification()), 3000)
       setTimeout(() => {
         window.localStorage.removeItem('loggedUser')
-        window.location.reload
-      }, 1000 * 60 * 60)
+        window.location.reload()
+      }, 60000 * 60)
     } catch(exception) {
       setErrorMessage(exception.response.data.error)
       setTimeout(() => setErrorMessage(null), 3000)
@@ -59,7 +63,7 @@ function App() {
   const handleCreation = async (newBlog) => {
     try {
       blogFormRef.current.toggleVisibility()
-      await blogService.create(newBlog)
+      dispatch(createBlog(newBlog))
       dispatch(createNotification({type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added`}))
       setTimeout(() => dispatch(clearNotification()), 3000)
     } catch (error) {
