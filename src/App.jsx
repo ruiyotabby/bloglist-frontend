@@ -9,18 +9,17 @@ import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearNotification, createNotification } from './reducers/notificationReducer';
+import { initializeBlogs } from './reducers/blogReducer';
 
 function App() {
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
   const notification = useSelector(state => state.notification)
+  const blogs = useSelector(state => state.blogs)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    blogService.getAll().then((response) => {
-      setBlogs(response)
-    });
+    dispatch(initializeBlogs())
   }, []);
 
   useEffect(() => {
@@ -61,7 +60,6 @@ function App() {
     try {
       blogFormRef.current.toggleVisibility()
       await blogService.create(newBlog)
-      setBlogs(await blogService.getAll())
       dispatch(createNotification({type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added`}))
       setTimeout(() => dispatch(clearNotification()), 3000)
     } catch (error) {
@@ -73,7 +71,6 @@ function App() {
   const handleLike = async (blog) => {
     try {
       await blogService.update(blog.id, blog)
-      setBlogs(await blogService.getAll())
       dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' liked`}))
       setTimeout(() => dispatch(clearNotification()), 3000)
     } catch(exception) {
@@ -88,7 +85,6 @@ function App() {
         return null
       }
       await blogService.remove(blog.id)
-      setBlogs(await blogService.getAll())
       dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted`}))
       setTimeout(() => dispatch(clearNotification()), 3000)
     } catch(exception) {
@@ -118,7 +114,6 @@ function App() {
             <BlogForm handleSubmit={handleCreation} />
           </Togglable>
           {blogs
-            .sort((a, b) => b.likes - a.likes)
             .map((blog) =>
               <Blog
                 key={blog.id}
