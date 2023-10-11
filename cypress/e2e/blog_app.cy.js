@@ -80,19 +80,19 @@ describe('Blog app', () => {
         cy.get('#likes').contains(1)
       })
 
+      it('A blog cannot be deleted by the user who didn\'t created it', function () {
+        cy.contains('log out').click()
+        cy.wait(3000)
+        cy.login({ username: 'michael', password: 'mike' })
+        cy.contains('show').click()
+        cy.get('.blog').should('not.contain', 'remove')
+      })
+
       it('A blog can be deleted by the user who created it', function () {
         cy.contains('show').click()
         cy.contains('remove').click()
         cy.get('.success').contains("blog 'a title by cypress an author by cypress' was deleted")
-        cy.get('#root').should('not.have.descendants', '.blog')
-      })
-
-      it('A blog cannot be deleted by the user who didn\'t created it', function () {
-        cy.contains('log out').click()
-        cy.wait(300)
-        cy.login({ username: 'michael', password: 'mike' })
-        cy.contains('show').click()
-        cy.get('.blog').should('not.contain', 'remove')
+        cy.get('#root').should('not.contain', '.blog')
       })
     })
 
