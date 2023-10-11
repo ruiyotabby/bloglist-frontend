@@ -48,8 +48,8 @@ function App() {
         window.location.reload()
       }, 60000 * 60)
     } catch(exception) {
-      setErrorMessage(exception.response.data.error)
-      setTimeout(() => setErrorMessage(null), 3000)
+      dispatch(createNotification({type: 'error', message: exception.response.data.error}))
+      setTimeout(() => dispatch(clearNotification()), 3000)
     }
   }
 
@@ -70,33 +70,6 @@ function App() {
       dispatch(createNotification({type: 'success', message: error.response.data.error}))
       setTimeout(() => dispatch(clearNotification()), 3000)
     }
-  }
-
-  const handleLike = async (blog) => {
-    try {
-      await blogService.update(blog.id, blog)
-      dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' liked`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-    } catch(exception) {
-      dispatch(createNotification({type: 'success', message: exception.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-    }
-  }
-
-  const handleRemove = async (blog) => {
-    try {
-      if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-        return null
-      }
-      await blogService.remove(blog.id)
-      dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-    } catch(exception) {
-      dispatch(createNotification({type: 'success', message: exception.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-      console.log(exception);
-    }
-
   }
 
   return (
@@ -122,9 +95,7 @@ function App() {
               <Blog
                 key={blog.id}
                 blog={blog}
-                handleClick={handleLike}
                 user={user.username === blog.user.username}
-                handleDelete={handleRemove}
               />
             )
           }

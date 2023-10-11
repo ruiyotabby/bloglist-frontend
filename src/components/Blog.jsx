@@ -1,30 +1,46 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import '../index.css'
+import { useDispatch } from 'react-redux';
+import { deleteBlog, likeBlog } from '../reducers/blogReducer';
+import { createNotification, clearNotification } from '../reducers/notificationReducer';
 
-const Blog = ({ blog, handleClick, user, handleDelete }) => {
+const Blog = ({ blog, user }) => {
   const [visible, setVisible] = useState(false)
   const toggleVisibility = () => setVisible(!visible)
   const showWhenVisible = { display: visible ? '' : 'none' }
   const text = visible ? 'hide' : 'show'
+  const dispatch = useDispatch()
 
-  const handleLike = (event) => {
-    event.preventDefault()
-    const updateBlog = {
+  const handleLike = () => {
+    try {
+      const updateBlog = {
       ...blog,
       user: blog.user.id,
       likes: blog.likes + 1
     }
-    handleClick(updateBlog)
+    dispatch(likeBlog(updateBlog))
+    dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' liked`}))
+    setTimeout(() => dispatch(clearNotification()), 3000)
+  } catch (exception) {
+    dispatch(createNotification({type: 'success', message: exception.response.data.error}))
+    setTimeout(() => dispatch(clearNotification()), 3000)
+  }
   }
 
-  const handleRemove = (event) => {
-    event.preventDefault()
-    const deletedBlog = {
-      ...blog,
-      user: blog.user.id
+  const handleDelete = () => {
+    try {
+      if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        return null
+      }
+      dispatch(deleteBlog(blog.id))
+      dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted`}))
+      setTimeout(() => dispatch(clearNotification()), 3000)
+    } catch(exception) {
+      dispatch(createNotification({type: 'success', message: exception.response.data.error}))
+      setTimeout(() => dispatch(clearNotification()), 3000)
+      console.log(exception);
     }
-    handleDelete(deletedBlog)
   }
 
   return (
@@ -35,7 +51,7 @@ const Blog = ({ blog, handleClick, user, handleDelete }) => {
         <div>{blog.url}</div>
         <div id='likes'>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
         <div>{blog.user.name}</div>
-        {user && <button onClick={handleRemove}>remove</button>}
+        {user && <button onClick={handleDelete}>remove</button>}
       </div>
     </div>
   );}
