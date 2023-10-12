@@ -1,20 +1,16 @@
 import { useEffect, useRef } from 'react';
-import Blog from './components/Blog';
 import LoginForm from './components/LoginForm';
 import BlogForm from './components/BlogForm';
 import './index.css'
 import Notification from './components/Notification';
-import Togglable from './components/Togglable';
 import { useDispatch, useSelector } from 'react-redux';
 import { createNotification } from './reducers/notificationReducer';
-import { createBlog, initializeBlogs } from './reducers/blogReducer';
+import { initializeBlogs } from './reducers/blogReducer';
 import { saveUserDetails } from './reducers/loginReducer';
+import Blogs from './components/Blogs';
 
 function App() {
-  const user = useSelector(state => state.user)
-  const blogFormRef = useRef()
-  const notification = useSelector(state => state.notification)
-  const blogs = useSelector(state => state.blogs)
+  const user = useSelector(({ user }) => user)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -38,19 +34,9 @@ function App() {
     dispatch(createNotification({type: 'success', message: `signed out successfully`}))
   }
 
-  const handleCreation = async (newBlog) => {
-    try {
-      blogFormRef.current.toggleVisibility()
-      dispatch(createBlog(newBlog))
-      dispatch(createNotification({type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added`}))
-    } catch (error) {
-      dispatch(createNotification({type: 'success', message: error.response.data.error}))
-    }
-  }
-
   return (
     <>
-      <Notification notification={notification} />
+      <Notification />
       {!user &&
         <>
           <h2>Log in to application</h2>
@@ -63,18 +49,8 @@ function App() {
           {user.name} logged in
           <button onClick={handleLogout}>log out</button>
           <h2>Create new</h2>
-          <Togglable buttonLabel='Create new blog' ref={blogFormRef}>
-            <BlogForm handleSubmit={handleCreation} />
-          </Togglable>
-          {blogs
-            .map((blog) =>
-              <Blog
-                key={blog.id}
-                blog={blog}
-                user={user.username === blog.user.username}
-              />
-            )
-          }
+          <BlogForm />
+          <Blogs />
         </>
       }
     </>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PropTypes from 'prop-types';
 import { login } from '../reducers/loginReducer';
 import { useDispatch } from "react-redux";
 import { createNotification } from "../reducers/notificationReducer";
@@ -49,10 +48,6 @@ const LoginForm = () => {
       <button type='submit'>Login</button>
     </form>
   )
-}
-
-LoginForm.propTypes = {
-  handleSubmit: PropTypes.func,
 }
 
 export default LoginForm;
