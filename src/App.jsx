@@ -1,18 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Blog from './components/Blog';
-import loginService from './services/login';
 import LoginForm from './components/LoginForm';
 import BlogForm from './components/BlogForm';
-import blogService from './services/blog'
 import './index.css'
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearNotification, createNotification } from './reducers/notificationReducer';
+import { createNotification } from './reducers/notificationReducer';
 import { createBlog, initializeBlogs } from './reducers/blogReducer';
+import { saveUserDetails } from './reducers/loginReducer';
 
 function App() {
-  const [user, setUser] = useState(null)
+  const user = useSelector(state => state.user)
   const blogFormRef = useRef()
   const notification = useSelector(state => state.notification)
   const blogs = useSelector(state => state.blogs)
@@ -25,9 +24,7 @@ function App() {
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedUser');
     if (loggedUser) {
-      const user = JSON.parse(loggedUser)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(saveUserDetails(JSON.parse(loggedUser)))
       setTimeout(() => {
         window.localStorage.removeItem('loggedUser')
         window.location.reload()
@@ -35,29 +32,10 @@ function App() {
     }
   }, [])
 
-  const handleLogin = async (credentials) => {
-    try {
-      const loggedUser = await loginService.login(credentials)
-      setUser(loggedUser)
-      blogService.setToken(loggedUser.token)
-      window.localStorage.setItem('loggedUser', JSON.stringify(loggedUser))
-      dispatch(createNotification({type: 'success', message: `${loggedUser.name} signed in successfully`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-      setTimeout(() => {
-        window.localStorage.removeItem('loggedUser')
-        window.location.reload()
-      }, 60000 * 60)
-    } catch(exception) {
-      dispatch(createNotification({type: 'error', message: exception.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
-    }
-  }
-
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser')
     setTimeout(() => window.location.reload(), 2000)
     dispatch(createNotification({type: 'success', message: `signed out successfully`}))
-    setTimeout(() => dispatch(clearNotification()), 3000)
   }
 
   const handleCreation = async (newBlog) => {
@@ -65,10 +43,8 @@ function App() {
       blogFormRef.current.toggleVisibility()
       dispatch(createBlog(newBlog))
       dispatch(createNotification({type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
     } catch (error) {
       dispatch(createNotification({type: 'success', message: error.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
     }
   }
 
@@ -78,7 +54,7 @@ function App() {
       {!user &&
         <>
           <h2>Log in to application</h2>
-          <LoginForm handleSubmit={handleLogin} />
+          <LoginForm />
         </>
       }
       {user &&
