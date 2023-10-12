@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { array } from "prop-types";
+import { useDispatch } from "react-redux";
 
 const notificationSlice = createSlice({
   name: 'notification',
@@ -8,7 +9,7 @@ const notificationSlice = createSlice({
     type: ''
   },
   reducers: {
-    createNotification(state,  action ) {
+    addNotification(state,  action ) {
       const { message, type } = action.payload
       state.message = message
       state.type = type
@@ -21,5 +22,13 @@ const notificationSlice = createSlice({
   }
 })
 
-export const { createNotification, clearNotification } = notificationSlice.actions
+export const { addNotification, clearNotification } = notificationSlice.actions
+
+export const createNotification = ({type, message}) => {
+  return (dispatch) => {
+    dispatch(addNotification({ type, message }))
+    setTimeout(() => dispatch(clearNotification()), 3000)
+  }
+}
+
 export default notificationSlice.reducer
