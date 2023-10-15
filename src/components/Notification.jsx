@@ -1,6 +1,9 @@
 import PropType from 'prop-types'
+import { useContext } from 'react'
+import NotificationContext from '../NotificationContext'
 
-const Notification = ({ notification }) => {
+const Notification = () => {
+  const [notification, dispatch] = useContext(NotificationContext)
   const { message, type } = notification
 
   if (!message) {

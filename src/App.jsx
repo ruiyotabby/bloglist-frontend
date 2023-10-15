@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Blog from './components/Blog';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
@@ -7,15 +7,13 @@ import blogService from './services/blog'
 import './index.css'
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearNotification, createNotification } from './reducers/notificationReducer';
+import NotificationContext from './NotificationContext';
 
 function App() {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
-  const notification = useSelector(state => state.notification)
-  const dispatch = useDispatch()
+  const [notification, dispatch] = useContext(NotificationContext)
 
   useEffect(() => {
     blogService.getAll().then((response) => {
@@ -38,23 +36,23 @@ function App() {
       setUser(loggedUser)
       blogService.setToken(loggedUser.token)
       window.localStorage.setItem('loggedUser', JSON.stringify(loggedUser))
-      dispatch(createNotification({type: 'success', message: `${loggedUser.name} signed in successfully`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'success', message: `${loggedUser.name} signed in successfully` } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
       setTimeout(() => {
         window.localStorage.removeItem('loggedUser')
         window.location.reload
       }, 1000 * 60 * 60)
     } catch(exception) {
-      setErrorMessage(exception.response.data.error)
-      setTimeout(() => setErrorMessage(null), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'error', message: exception.response.data.error } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     }
   }
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser')
     setTimeout(() => window.location.reload(), 2000)
-    dispatch(createNotification({type: 'success', message: `signed out successfully`}))
-    setTimeout(() => dispatch(clearNotification()), 3000)
+    dispatch({ type: 'ADD', payload: { type: 'success', message: `Signed out successfully` } })
+    setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
   }
 
   const handleCreation = async (newBlog) => {
@@ -62,11 +60,11 @@ function App() {
       blogFormRef.current.toggleVisibility()
       await blogService.create(newBlog)
       setBlogs(await blogService.getAll())
-      dispatch(createNotification({type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added` } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     } catch (error) {
-      dispatch(createNotification({type: 'success', message: error.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'error', message: error.response.data.error } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     }
   }
 
@@ -74,11 +72,11 @@ function App() {
     try {
       await blogService.update(blog.id, blog)
       setBlogs(await blogService.getAll())
-      dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' liked`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'success', message: `blog '${blog.title} ${blog.author}' liked` } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     } catch(exception) {
-      dispatch(createNotification({type: 'success', message: exception.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'error', message: exception.response.data.error } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     }
   }
 
@@ -89,11 +87,11 @@ function App() {
       }
       await blogService.remove(blog.id)
       setBlogs(await blogService.getAll())
-      dispatch(createNotification({type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted`}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted` } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
     } catch(exception) {
-      dispatch(createNotification({type: 'success', message: exception.response.data.error}))
-      setTimeout(() => dispatch(clearNotification()), 3000)
+      dispatch({ type: 'ADD', payload: { type: 'success', message: exception.response.data.error } })
+      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
       console.log(exception);
     }
 
@@ -101,7 +99,7 @@ function App() {
 
   return (
     <>
-      <Notification notification={notification} />
+      <Notification />
       {!user &&
         <>
           <h2>Log in to application</h2>
