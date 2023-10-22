@@ -8,18 +8,16 @@ import './index.css'
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import NotificationContext from './NotificationContext';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNotification } from './hooks/index';
 
 function App() {
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
   const [notification, dispatch] = useContext(NotificationContext)
-
-  useEffect(() => {
-    blogService.getAll().then((response) => {
-      setBlogs(response)
-    });
-  }, []);
+  const queryClient = useQueryClient()
+  const successNotification = useNotification('success')
+  const errorNotification = useNotification('error')
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedUser');
@@ -40,7 +38,7 @@ function App() {
       setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
       setTimeout(() => {
         window.localStorage.removeItem('loggedUser')
-        window.location.reload
+        window.location.reload()
       }, 1000 * 60 * 60)
     } catch(exception) {
       dispatch({ type: 'ADD', payload: { type: 'error', message: exception.response.data.error } })
@@ -55,47 +53,64 @@ function App() {
     setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
   }
 
+  const { isLoading, error, data } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+   })
+
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      successNotification.show(`a new blog '${newBlog.title}' by '${newBlog.author}' added`)
+      queryClient.setQueryData(['blogs'], blogs.concat({...newBlog, user: user}))
+    },
+    onError: (error) => errorNotification.show(error.response.data.error)
+  })
+
+  const updateBlogMutation = useMutation({
+    mutationFn: blogService.update,
+    onSuccess: (updatedBlog) => {
+      successNotification.show(`blog '${updatedBlog.title} ${updatedBlog.author}' liked`)
+      queryClient.setQueryData(['blogs'], blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
+    },
+    onError: (error) => errorNotification.show(error.response.data.error)
+  })
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: (deletedBlog) => {
+      successNotification.show(`blog '${deletedBlog.title} ${deletedBlog.author}' was deleted`)
+      queryClient.setQueryData(['blogs'], blogs.filter(blog => blog.id !== deletedBlog.id))
+    },
+    onError: (error) => errorNotification.show(error.response.data.error)
+
+  })
+
   const handleCreation = async (newBlog) => {
-    try {
-      blogFormRef.current.toggleVisibility()
-      await blogService.create(newBlog)
-      setBlogs(await blogService.getAll())
-      dispatch({ type: 'ADD', payload: { type: 'success', message: `a new blog '${newBlog.title}' by '${newBlog.author}' added` } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-    } catch (error) {
-      dispatch({ type: 'ADD', payload: { type: 'error', message: error.response.data.error } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-    }
+    blogFormRef.current.toggleVisibility()
+    newBlogMutation.mutate(newBlog)
   }
 
-  const handleLike = async (blog) => {
-    try {
-      await blogService.update(blog.id, blog)
-      setBlogs(await blogService.getAll())
-      dispatch({ type: 'ADD', payload: { type: 'success', message: `blog '${blog.title} ${blog.author}' liked` } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-    } catch(exception) {
-      dispatch({ type: 'ADD', payload: { type: 'error', message: exception.response.data.error } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-    }
+  const handleLike = (blog) => {
+    updateBlogMutation.mutate(blog)
   }
 
   const handleRemove = async (blog) => {
-    try {
-      if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-        return null
-      }
-      await blogService.remove(blog.id)
-      setBlogs(await blogService.getAll())
-      dispatch({ type: 'ADD', payload: { type: 'success', message: `blog '${blog.title} ${blog.author}' was deleted` } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-    } catch(exception) {
-      dispatch({ type: 'ADD', payload: { type: 'success', message: exception.response.data.error } })
-      setTimeout(() => dispatch({ type: 'CLEAR' }), 3000)
-      console.log(exception);
+    if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      return null
     }
-
+    deleteBlogMutation.mutate(blog.id)
   }
+
+   if (isLoading) {
+    return <div>Loading data...</div>
+  }
+
+   if (error) {
+    return <div>{error.message}</div>
+  }
+
+   const blogs = data
 
   return (
     <>
