@@ -7,8 +7,6 @@ module.exports = {
     "cypress/globals": true
   },
   extends: [
-    // "airbnb",
-    // "airbnb/hooks",
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',

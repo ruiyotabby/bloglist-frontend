@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import '../index.css'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import blogService from '../services/blog';
 import { useNotification } from '../hooks';
+import UserContext from '../UserContext';
 
-const Blog = ({ blog, user }) => {
+const Blog = ({ blog }) => {
   const [visible, setVisible] = useState(false)
   const toggleVisibility = () => setVisible(!visible)
   const showWhenVisible = { display: visible ? '' : 'none' }
@@ -13,6 +14,7 @@ const Blog = ({ blog, user }) => {
   const queryClient = useQueryClient()
   const successNotification = useNotification('success')
   const errorNotification = useNotification('error')
+  const [user, userDispatch] = useContext(UserContext)
 
   const { data } = useQuery({
     queryKey: ['blogs'],
@@ -91,18 +93,13 @@ const Blogs = ({ user }) => {
 
   return (
     blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
-      <Blog
-        key={blog.id}
-        blog={blog}
-        user={user}
-      />
+      <Blog key={blog.id} blog={blog} />
     )
   )
 }
 
 
 Blog.propTypes = {
-  user: PropTypes.object,
   blog: PropTypes.shape({
     title: PropTypes.string,
     author: PropTypes.string,

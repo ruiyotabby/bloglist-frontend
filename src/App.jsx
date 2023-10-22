@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import Blogs from './components/Blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
@@ -6,28 +6,26 @@ import BlogForm from './components/BlogForm';
 import blogService from './services/blog'
 import './index.css'
 import Notification from './components/Notification';
-import NotificationContext from './NotificationContext';
 import { useNotification } from './hooks/index';
+import UserContext from './UserContext';
 
 function App() {
-  const [user, setUser] = useState(null)
-  const [notification, dispatch] = useContext(NotificationContext)
+  const [user, userDispatch] = useContext(UserContext)
   const successNotification = useNotification('success')
   const errorNotification = useNotification('error')
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedUser');
     if (loggedUser) {
-      const user = JSON.parse(loggedUser)
-      setUser(user)
-      blogService.setToken(user.token)
+      userDispatch({ type: 'SAVE', payload: JSON.parse(loggedUser) })
+      blogService.setToken(JSON.parse(loggedUser).token)
     }
   }, [])
 
   const handleLogin = async (credentials) => {
     try {
       const loggedUser = await loginService.login(credentials)
-      setUser(loggedUser)
+      userDispatch({ type: 'SAVE', payload: loggedUser })
       blogService.setToken(loggedUser.token)
       window.localStorage.setItem('loggedUser', JSON.stringify(loggedUser))
       successNotification.show(`${loggedUser.name} signed in successfully`)
@@ -42,7 +40,7 @@ function App() {
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser')
-    setTimeout(() => window.location.reload(), 2000)
+    userDispatch({ type: 'CLEAR'})
     successNotification.show(`Signed out successfully`)
   }
 

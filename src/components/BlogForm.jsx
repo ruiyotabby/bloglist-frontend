@@ -1,11 +1,12 @@
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNotification } from '../hooks';
 import blogService from '../services/blog';
 import Togglable from './Togglable';
+import UserContext from '../UserContext';
 
-const BlogForm = ({ user }) => {
+const BlogForm = () => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
@@ -13,6 +14,8 @@ const BlogForm = ({ user }) => {
   const errorNotification = useNotification('error')
   const blogFormRef = useRef()
   const queryClient = useQueryClient()
+  const [user, userDispatch] = useContext(UserContext)
+
 
   const { data } = useQuery({
     queryKey: ['blogs'],
