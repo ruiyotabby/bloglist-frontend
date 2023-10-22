@@ -1,22 +1,46 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import PropTypes from 'prop-types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNotification } from '../hooks';
+import blogService from '../services/blog';
+import Togglable from './Togglable';
 
-const BlogForm = ({handleSubmit}) => {
+const BlogForm = ({ user }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
+  const successNotification = useNotification('success')
+  const errorNotification = useNotification('error')
+  const blogFormRef = useRef()
+  const queryClient = useQueryClient()
+
+  const { data } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+  })
+
+  const blogs = data
+
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      successNotification.show(`a new blog '${newBlog.title}' by '${newBlog.author}' added`)
+      queryClient.setQueryData(['blogs'], blogs.concat({...newBlog, user: user}))
+    },
+    onError: (error) => errorNotification.show(error.response.data.error)
+  })
 
   const handleCreation = async (event) => {
     event.preventDefault()
-
-    handleSubmit({ title, author, url })
+    blogFormRef.current.toggleVisibility()
+    newBlogMutation.mutate({ title, author, url })
     setTitle('')
     setAuthor('')
     setUrl('')
   }
 
   return (
-    <>
+    <Togglable buttonLabel='Create new blog' ref={blogFormRef}>
       <form onSubmit={handleCreation}>
         <div>
           title:
@@ -53,7 +77,7 @@ const BlogForm = ({handleSubmit}) => {
         </div>
         <button type="submit">create</button>
       </form>
-    </>
+    </Togglable>
   )
 }
 
