@@ -7,7 +7,7 @@ const Users = () => {
     queryFn: userService.getAll
   })
   if (isLoading) return <div>Please wait...</div>
-  if (error) return <div>{error}</div>
+  if (error) return <div>{error.message}</div>
   const users = data
 
   return (
