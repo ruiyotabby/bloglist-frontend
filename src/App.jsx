@@ -2,12 +2,13 @@ import { useEffect, useContext } from 'react';
 import Blogs from './components/Blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
-import BlogForm from './components/BlogForm';
 import blogService from './services/blog'
 import './index.css'
 import Notification from './components/Notification';
 import { useNotification } from './hooks/index';
 import UserContext from './UserContext';
+import { Route, Routes } from 'react-router-dom';
+import Users from './components/Users';
 
 function App() {
   const [user, userDispatch] = useContext(UserContext)
@@ -58,9 +59,10 @@ function App() {
           <h2>Blogs</h2>
           {user.name} logged in
           <button onClick={handleLogout}>log out</button>
-          <h2>Create new</h2>
-          <BlogForm user={user}></BlogForm>
-          <Blogs user={user}/>
+          <Routes>
+            <Route path='/' element={<Blogs user={user}/>}/>
+            <Route path='/users' element={<Users />} />
+          </Routes>
         </>
       }
     </>

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import blogService from '../services/blog';
 import { useNotification } from '../hooks';
 import UserContext from '../UserContext';
+import BlogForm from './BlogForm';
 
 const Blog = ({ blog }) => {
   const [visible, setVisible] = useState(false)
@@ -92,9 +93,12 @@ const Blogs = ({ user }) => {
   const blogs = data
 
   return (
-    blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
-      <Blog key={blog.id} blog={blog} />
-    )
+    <>
+      <BlogForm user={user}></BlogForm>
+      {blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
+        <Blog key={blog.id} blog={blog} />
+      )}
+  </>
   )
 }
 
