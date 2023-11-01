@@ -7,7 +7,7 @@ import './index.css'
 import Notification from './components/Notification';
 import { useNotification } from './hooks/index';
 import UserContext from './UserContext';
-import { Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes } from 'react-router-dom';
 import Users, { User } from './components/Users';
 
 function App() {
@@ -56,9 +56,11 @@ function App() {
       }
       {user &&
         <>
-          <h2>Blogs</h2>
-          <p>{user.name} logged in</p>
+          <Link to='/blogs'>Blogs</Link>
+          <Link to='/users'>Users</Link>
+          <> {user.name} logged in </>
           <button onClick={handleLogout}>log out</button>
+          <h2>Blog App</h2>
           <Routes>
             <Route path='/' element={<Blogs />}/>
             <Route path='/blogs' element={<Blogs />}/>

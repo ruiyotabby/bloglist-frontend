@@ -93,6 +93,7 @@ const Blogs = () => {
 
   return (
     <>
+      <h3>Blogs</h3>
       <BlogForm />
       {blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
       <div key={blog.id} className='blog'>
