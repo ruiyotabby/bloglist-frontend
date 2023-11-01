@@ -1,5 +1,4 @@
 import { useContext, useRef, useState } from 'react';
-import PropTypes from 'prop-types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNotification } from '../hooks';
 import blogService from '../services/blog';
@@ -85,10 +84,6 @@ const BlogForm = () => {
       </Togglable>
     </>
   )
-}
-
-BlogForm.propTypes = {
-  handleSubmit: PropTypes.func
 }
 
 export default BlogForm;

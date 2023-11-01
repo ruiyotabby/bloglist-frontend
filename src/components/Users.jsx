@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import userService from "../services/user"
 import { Link, useParams } from "react-router-dom"
 
@@ -35,12 +35,16 @@ const Users = () => {
 }
 
 export const User = () => {
-  const queryClient = useQueryClient()
-  const users = queryClient.getQueryData(['users'])
+  const { id } = useParams()
+  const { isLoading, data } = useQuery({
+    queryKey: ['users'],
+    queryFn: userService.getAll
+  })
 
-  if (!users) return <p>Nothing to see here</p>
+  if (isLoading) return <p>Please wait...</p>
 
-  const user = users.find(user => user.id === useParams().id)
+  const users = data
+  const user = users.find(user => user.id === id)
 
   if (!user) return <p>User not found</p>
 
@@ -50,7 +54,7 @@ export const User = () => {
       <h5>added blogs</h5>
       <ul>
         {user.blogs.map(blog =>
-          <li key={blog.id}>{blog.title}</li>
+          <li key={blog.id}><Link to={`/blogs/${blog.id}`}>{blog.title}</Link></li>
         )}
       </ul>
     </>

@@ -1,5 +1,5 @@
 import { useEffect, useContext } from 'react';
-import Blogs from './components/Blogs';
+import Blogs, { Blog } from './components/Blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
 import blogService from './services/blog'
@@ -60,9 +60,11 @@ function App() {
           <p>{user.name} logged in</p>
           <button onClick={handleLogout}>log out</button>
           <Routes>
-            <Route path='/' element={<Blogs user={user}/>}/>
+            <Route path='/' element={<Blogs />}/>
+            <Route path='/blogs' element={<Blogs />}/>
             <Route path='/users' element={<Users />} />
             <Route path='/users/:id' element={<User />} />
+            <Route path='/blogs/:id' element={<Blog />} />
           </Routes>
         </>
       }

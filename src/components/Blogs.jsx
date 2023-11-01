@@ -1,23 +1,23 @@
-import PropTypes from 'prop-types';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import '../index.css'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import blogService from '../services/blog';
 import { useNotification } from '../hooks';
 import UserContext from '../UserContext';
 import BlogForm from './BlogForm';
+import { Link, useParams } from 'react-router-dom';
 
-const Blog = ({ blog }) => {
-  const [visible, setVisible] = useState(false)
-  const toggleVisibility = () => setVisible(!visible)
-  const showWhenVisible = { display: visible ? '' : 'none' }
-  const text = visible ? 'hide' : 'show'
+export const Blog = () => {
   const queryClient = useQueryClient()
   const successNotification = useNotification('success')
   const errorNotification = useNotification('error')
   const [user, userDispatch] = useContext(UserContext)
 
-  const blogs = queryClient.getQueryData(['blogs'])
+  const { id } = useParams()
+  const { isLoading, data } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+  })
 
   const updateBlogMutation = useMutation({
     mutationFn: blogService.update,
@@ -36,6 +36,13 @@ const Blog = ({ blog }) => {
     },
     onError: (error) => errorNotification.show(error.response.data.error)
   })
+
+  if (isLoading) return <p>Please wait...</p>
+
+  const blogs = data
+  const blog = blogs.find(blog => blog.id === id)
+
+  if (!blog) return <p>Blog not found</p>
 
   const handleLike = () => {
     const updateBlog = {
@@ -58,20 +65,17 @@ const Blog = ({ blog }) => {
   }
 
   return (
-    <div className='blog'>
-      <span>{blog.title} {blog.author} </span>
-      <button onClick={toggleVisibility}>{text}</button>
-      <div style={showWhenVisible} className='hiddenContent'>
-        <div>{blog.url}</div>
-        <div id='likes'>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
-        <div>{blog.user.name}</div>
-        {(user.username === blog.user.username) && <button onClick={handleRemove}>remove</button>}
-      </div>
-    </div>
+    <>
+      <h3>{blog.title} {blog.author} </h3>
+      <a href={`http://www.${blog.url}`}>{blog.url}</a>
+      <div id='likes'>{blog.likes} likes <button onClick={handleLike}>like</button></div>
+      <div>added by <Link to={`/users/${blog.user.id}`}>{blog.user.name}</Link></div>
+      {(user.username === blog.user.username) && <button onClick={handleRemove}>remove</button>}
+    </>
   );
 }
 
-const Blogs = ({ user }) => {
+const Blogs = () => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAll,
@@ -89,26 +93,14 @@ const Blogs = ({ user }) => {
 
   return (
     <>
-      <BlogForm user={user}></BlogForm>
+      <BlogForm />
       {blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
-        <Blog key={blog.id} blog={blog} />
+      <div key={blog.id} className='blog'>
+        <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author} </Link>
+      </div>
       )}
   </>
   )
 }
-
-
-Blog.propTypes = {
-  blog: PropTypes.shape({
-    title: PropTypes.string,
-    author: PropTypes.string,
-    url: PropTypes.string,
-    likes: PropTypes.number,
-    user: PropTypes.shape({
-      name: PropTypes.string,
-      id: PropTypes.string
-    })
-  }),
-};
 
 export default Blogs;
