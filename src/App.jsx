@@ -8,7 +8,7 @@ import Notification from './components/Notification';
 import { useNotification } from './hooks/index';
 import UserContext from './UserContext';
 import { Route, Routes } from 'react-router-dom';
-import Users from './components/Users';
+import Users, { User } from './components/Users';
 
 function App() {
   const [user, userDispatch] = useContext(UserContext)
@@ -57,11 +57,12 @@ function App() {
       {user &&
         <>
           <h2>Blogs</h2>
-          {user.name} logged in
+          <p>{user.name} logged in</p>
           <button onClick={handleLogout}>log out</button>
           <Routes>
             <Route path='/' element={<Blogs user={user}/>}/>
             <Route path='/users' element={<Users />} />
+            <Route path='/users/:id' element={<User />} />
           </Routes>
         </>
       }

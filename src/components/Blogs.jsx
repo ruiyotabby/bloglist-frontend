@@ -17,12 +17,7 @@ const Blog = ({ blog }) => {
   const errorNotification = useNotification('error')
   const [user, userDispatch] = useContext(UserContext)
 
-  const { data } = useQuery({
-    queryKey: ['blogs'],
-    queryFn: blogService.getAll,
-  })
-
-  const blogs = data
+  const blogs = queryClient.getQueryData(['blogs'])
 
   const updateBlogMutation = useMutation({
     mutationFn: blogService.update,
@@ -83,11 +78,11 @@ const Blogs = ({ user }) => {
    })
 
   if (isLoading) {
-    return <div>Loading data...</div>
+    return <p>Loading data...</p>
   }
 
   if (error) {
-    return <div>{error.message}</div>
+    return <p>{error.message}</p>
   }
 
   const blogs = data
