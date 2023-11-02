@@ -70,7 +70,11 @@ export const Blog = () => {
       <a href={`http://www.${blog.url}`}>{blog.url}</a>
       <div id='likes'>{blog.likes} likes <button onClick={handleLike}>like</button></div>
       <div>added by <Link to={`/users/${blog.user.id}`}>{blog.user.name}</Link></div>
-      {(user.username === blog.user.username) && <button onClick={handleRemove}>remove</button>}
+      {(user.username === blog.user.username) && <button onClick={handleRemove}>Delete blog</button>}
+      <h3>comments</h3>
+      <ul>
+        {blog.comments.map(comment => <li key={comment.id}>{comment.content}</li>)}
+      </ul>
     </>
   );
 }
