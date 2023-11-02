@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import '../index.css'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import blogService from '../services/blog';
@@ -12,6 +12,7 @@ export const Blog = () => {
   const successNotification = useNotification('success')
   const errorNotification = useNotification('error')
   const [user, userDispatch] = useContext(UserContext)
+  const [comment, setComment] = useState('')
 
   const { id } = useParams()
   const { isLoading, data } = useQuery({
@@ -33,6 +34,15 @@ export const Blog = () => {
     onSuccess: (deletedBlog) => {
       successNotification.show(`blog '${deletedBlog.title} ${deletedBlog.author}' was deleted`)
       queryClient.setQueryData(['blogs'], blogs.filter(blog => blog.id !== deletedBlog.id))
+    },
+    onError: (error) => errorNotification.show(error.response.data.error)
+  })
+
+  const newCommentMutation = useMutation({
+    mutationFn: blogService.addComment,
+    onSuccess: (newComment) => {
+      successNotification.show('comment added')
+      queryClient.setQueryData(['blogs'], blogs.map(blog => blog.id === newComment.id ? newComment : blog))
     },
     onError: (error) => errorNotification.show(error.response.data.error)
   })
@@ -64,6 +74,13 @@ export const Blog = () => {
     deleteBlogMutation.mutate(deletedBlog.id)
   }
 
+  const addComment = (event) => {
+    event.preventDefault()
+    const newComment = { content : comment }
+    setComment('')
+    newCommentMutation.mutate({ blogId: id, newComment} )
+  }
+
   return (
     <>
       <h3>{blog.title} {blog.author} </h3>
@@ -72,6 +89,10 @@ export const Blog = () => {
       <div>added by <Link to={`/users/${blog.user.id}`}>{blog.user.name}</Link></div>
       {(user.username === blog.user.username) && <button onClick={handleRemove}>Delete blog</button>}
       <h3>comments</h3>
+      <form onSubmit={addComment}>
+        <input type="text" value={comment} required onChange={({ target }) => setComment(target.value)} />
+        <button type="submit">add comment</button>
+      </form>
       <ul>
         {blog.comments.map(comment => <li key={comment.id}>{comment.content}</li>)}
       </ul>
