@@ -7,13 +7,14 @@ import './index.css'
 import Notification from './components/Notification';
 import { useNotification } from './hooks/index';
 import UserContext from './UserContext';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import Users, { User } from './components/Users';
 
 function App() {
   const [user, userDispatch] = useContext(UserContext)
   const successNotification = useNotification('success')
   const errorNotification = useNotification('error')
+  const location = useLocation().pathname
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedUser');
@@ -48,6 +49,7 @@ function App() {
   return (
     <>
       <Notification />
+      <h1 className='title'>BLOG</h1>
       {!user &&
         <>
           <h2>Log in to application</h2>
@@ -56,11 +58,16 @@ function App() {
       }
       {user &&
         <>
-          <Link to='/blogs'>Blogs</Link>
-          <Link to='/users'>Users</Link>
-          <> {user.name} logged in </>
-          <button onClick={handleLogout}>log out</button>
-          <h2>Blog App</h2>
+          <header className='header'>
+            <div>
+              <Link className={location === '/blogs' ? 'active': ''} to='/blogs'>Blogs</Link>
+              <Link className={location === '/users' ? 'active': ''} to='/users'>Users</Link>
+            </div>
+            <div>
+              <>{user.name} logged in </>
+              <button className='warning' onClick={handleLogout}>log out</button>
+            </div>
+          </header>
           <Routes>
             <Route path='/' element={<Blogs />}/>
             <Route path='/blogs' element={<Blogs />}/>

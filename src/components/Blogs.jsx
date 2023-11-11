@@ -87,10 +87,10 @@ export const Blog = () => {
       <a href={`http://www.${blog.url}`}>{blog.url}</a>
       <div id='likes'>{blog.likes} likes <button onClick={handleLike}>like</button></div>
       <div>added by <Link to={`/users/${blog.user.id}`}>{blog.user.name}</Link></div>
-      {(user.username === blog.user.username) && <button onClick={handleRemove}>Delete blog</button>}
+      {(user.username === blog.user.username) && <button className='warning' onClick={handleRemove}>Delete blog</button>}
       <h3>comments</h3>
       <form onSubmit={addComment}>
-        <input type="text" value={comment} required onChange={({ target }) => setComment(target.value)} />
+        <input style={{ marginRight: 4, marginBottom: 4, height: 26}} type="text" value={comment} required onChange={({ target }) => setComment(target.value)} />
         <button type="submit">add comment</button>
       </form>
       <ul>
@@ -121,9 +121,7 @@ const Blogs = () => {
       <h3>Blogs</h3>
       <BlogForm />
       {blogs.sort((a, b) => b.likes - a.likes).map((blog) =>
-      <div key={blog.id} className='blog'>
-        <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author} </Link>
-      </div>
+      <Link key={blog.id} className='blog' to={`/blogs/${blog.id}`}>{blog.title} {blog.author} </Link>
       )}
   </>
   )
